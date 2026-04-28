@@ -1,14 +1,32 @@
-﻿using bmsmodel.Common;
+﻿using bmslib.Config;
+using bmsmodel.Common;
+using bmsrepository.Common;
 using bmsrepository.Interface;
 
 namespace bmsrepository
 {
-    internal class UserRepository : IUserRepository
+    internal class UserRepository(AppConfig appConfig) : BaseRepository(appConfig), IUserRepository
     {
-        public Task Insert(UserModel userModel)
+        public async Task Insert(UserModel model)
         {
-            Console.WriteLine(userModel);
-            return Task.CompletedTask;
+            using (var conn = _connection)
+            {
+                try
+                {
+                    await conn.BeginTransactionAsync();
+                    model.IsActive = true;
+                    model.Id = await conn.InsertAsync("User", model);
+                    await conn.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+                finally
+                {
+                    await conn.RollbackAsync();
+                }
+            }
         }
     }
 }

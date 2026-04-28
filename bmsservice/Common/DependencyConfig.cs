@@ -1,4 +1,5 @@
 ﻿
+using bmslib.Config;
 using bmsservice.Interface;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -6,11 +7,11 @@ namespace bmsservice.Common
 {
     public class DependencyConfig
     {
-        public static void Configure(IServiceCollection config)
+        public static void Configure(IServiceCollection config, AppConfig appConfig)
         {
             config.AddTransient<IUserService, UserService>();
 
-            bmsrepository.Common.DependencyConfig.Configure(config);
+            bmsrepository.Common.DependencyConfig.Configure(config, appConfig);
         }
     }
 }

@@ -1,3 +1,5 @@
+using bmslib.Config;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,7 +9,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-bmsservice.Common.DependencyConfig.Configure(builder.Services);
+var appConfig = builder.Configuration.Get<AppConfig>();
+
+builder.Services.AddSingleton(appConfig);
+
+bmsservice.Common.DependencyConfig.Configure(builder.Services, appConfig);
+
+// all objects will be serialized as they are defined in the class, without camelCase conversion
+builder.Services.AddMvc().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+});
 
 var app = builder.Build();
 
