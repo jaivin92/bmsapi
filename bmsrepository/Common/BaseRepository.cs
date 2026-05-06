@@ -2,12 +2,13 @@
 using bmslib.Config;
 using MySqlConnector;
 
+
 namespace bmsrepository.Common
 {
     internal abstract class BaseRepository
     {
         protected readonly AppConfig _appConfig;
-
+       
 
         public BaseRepository(AppConfig appConfig)
         {
@@ -16,7 +17,10 @@ namespace bmsrepository.Common
 
         public IDbConnection create()
         {
-            return new MySqlConnection(_appConfig.ConnectionStrings.CMSDBConnection);
+            //return new MySqlConnection(_appConfig.ConnectionStrings.CMSDBConnection);
+            string connectionString = _appConfig.ConnectionStrings.DBString;
+            return new MySqlConnection(connectionString);
+            
         }
 
         public IDbConnection _connection
@@ -28,5 +32,7 @@ namespace bmsrepository.Common
                 return conn;
             }
         }
+
+        
     }
 }

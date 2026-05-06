@@ -1,7 +1,9 @@
-﻿using bmslib.Config;
+﻿using System.Data;
+using bmslib.Config;
 using bmsmodel.Common;
 using bmsrepository.Common;
 using bmsrepository.Interface;
+using Dapper;
 
 namespace bmsrepository
 {
@@ -13,10 +15,24 @@ namespace bmsrepository
             {
                 try
                 {
-                    await conn.BeginTransactionAsync();
-                    model.IsActive = true;
-                    model.Id = await conn.InsertAsync("User", model);
-                    await conn.CommitAsync();
+                    const string sql = @"
+            INSERT INTO Users
+            (
+                Name
+            )
+            VALUES
+            (
+                @Name
+            );
+
+            SELECT LAST_INSERT_ID();";
+                    if (conn.State != ConnectionState.Open)
+                        conn.Open();
+
+                    int id = await conn.ExecuteScalarAsync<int>(
+                        sql,
+                        model);
+
                 }
                 catch (Exception ex)
                 {
@@ -24,9 +40,11 @@ namespace bmsrepository
                 }
                 finally
                 {
-                    await conn.RollbackAsync();
+                    //await conn
                 }
             }
         }
+
+
     }
 }
