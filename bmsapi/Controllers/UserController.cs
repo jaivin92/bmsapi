@@ -22,6 +22,27 @@ namespace bmsapi.Controllers
             return await Success(model, message: SystemMessages.User.InsertedSuccessfully());
         }
 
+        [HttpPut("Update")]
+        public async Task<IActionResult> Update([FromBody] UserModel model)
+        {
+            await _userService.Update(model);
+            return await Success(model, message: SystemMessages.User.UpdatedSuccessfully());
+        }
+
+        [HttpGet("GetById/{id}")]
+        public async Task<IActionResult> GetById(long id)
+        {
+            var user = await _userService.GetById(id);
+            return await Success(user);
+        }
+
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll()
+        {
+            var users = await _userService.GetAll();
+            return await Success(users);
+        }
+
 
     }
 }
