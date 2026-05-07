@@ -1,4 +1,6 @@
-﻿using bmsmodel.Common;
+﻿using System.ComponentModel.DataAnnotations;
+using bmslib.Resource;
+using bmsmodel.Common;
 using bmsrepository.Interface;
 using bmsservice.Interface;
 
@@ -8,29 +10,31 @@ namespace bmsservice
     {
         private IUserRepository _userRepository = userRepository;
 
-        public async Task<bool> Insert(UserModel userModel)
+        public async Task Insert(UserModel userModel)
         {
-            if (await _userRepository.IsExists(userModel))
+            if (!await _userRepository.IsExists(userModel))
             {
-                return false;
+                await _userRepository.Insert(userModel);
             }
-
-            await _userRepository.Insert(userModel);
-            return true;
+            else
+            {
+                throw new ValidationException(SystemMessages.User.AlreadyExist());
+            }
         }
 
-        public async Task<bool> Update(UserModel userModel)
+        public async Task Update(UserModel userModel)
         {
-            if (await _userRepository.IsExists(userModel))
+            if (!await _userRepository.IsExists(userModel))
             {
-                return false;
+                await _userRepository.Update(userModel);
             }
-
-            await _userRepository.Update(userModel);
-            return true;
+            else
+            {
+                throw new ValidationException(SystemMessages.User.AlreadyExist());
+            }
         }
 
-        public Task<UserModel?> GetById(long id)
+        public Task<UserModel> GetById(long id)
         {
             return _userRepository.GetById(id);
         }
