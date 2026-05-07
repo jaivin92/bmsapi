@@ -8,9 +8,36 @@ namespace bmsservice
     {
         private IUserRepository _userRepository = userRepository;
 
-        public Task Insert(UserModel userModel)
+        public async Task<bool> Insert(UserModel userModel)
         {
-            return _userRepository.Insert(userModel);
+            if (await _userRepository.IsExists(userModel))
+            {
+                return false;
+            }
+
+            await _userRepository.Insert(userModel);
+            return true;
+        }
+
+        public async Task<bool> Update(UserModel userModel)
+        {
+            if (await _userRepository.IsExists(userModel))
+            {
+                return false;
+            }
+
+            await _userRepository.Update(userModel);
+            return true;
+        }
+
+        public Task<UserModel?> GetById(long id)
+        {
+            return _userRepository.GetById(id);
+        }
+
+        public Task<List<UserModel>> GetAll()
+        {
+            return _userRepository.GetAll();
         }
     }
 }

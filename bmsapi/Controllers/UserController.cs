@@ -18,8 +18,37 @@ namespace bmsapi.Controllers
         [HttpPost("Insert")]
         public async Task<IActionResult> Insert([FromBody] UserModel model)
         {
-            await _userService.Insert(model);
+            if (!await _userService.Insert(model))
+            {
+                return await Error(SystemMessages.User.AlreadyExist());
+            }
+
             return await Success(model, message: SystemMessages.User.InsertedSuccessfully());
+        }
+
+        [HttpPost("Update")]
+        public async Task<IActionResult> Update([FromBody] UserModel model)
+        {
+            if (!await _userService.Update(model))
+            {
+                return await Error(SystemMessages.User.AlreadyExist());
+            }
+
+            return await Success(model, message: SystemMessages.User.UpdatedSuccessfully());
+        }
+
+        [HttpGet("GetById/{id}")]
+        public async Task<IActionResult> GetById(long id)
+        {
+            var user = await _userService.GetById(id);
+            return await Success(user);
+        }
+
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll()
+        {
+            var users = await _userService.GetAll();
+            return await Success(users);
         }
 
 

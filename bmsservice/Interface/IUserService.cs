@@ -5,6 +5,9 @@ namespace bmsservice.Interface
 {
     public interface IUserService
     {
-        Task Insert(UserModel userModel);
+        Task<bool> Insert(UserModel userModel);
+        Task<bool> Update(UserModel userModel);
+        Task<UserModel?> GetById(long id);
+        Task<List<UserModel>> GetAll();
     }
 }
