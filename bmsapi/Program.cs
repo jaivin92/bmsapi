@@ -1,14 +1,10 @@
-﻿using System.Text.Json;
+﻿using bmsapi.Helpers;
 using bmslib.Config;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -16,6 +12,45 @@ builder.Services.AddSwaggerGen();
 var appConfig = builder.Configuration.Get<AppConfig>();
 
 builder.Services.AddSingleton(appConfig);
+
+// case sensitive and no camel case
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+});
+
+# region Model and Error Filters
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<bmsapi.Helpers.Filters.ExceptionFilter>();
+});
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var problemDetails = new ValidationProblemDetails(context.ModelState)
+        {
+            Status = StatusCodes.Status400BadRequest,
+            Title = "Validation Error",
+            Detail = "One or more validation errors occurred.",
+            Instance = context.HttpContext.Request.Path
+        };
+
+        var _errorObj = new Error()
+        {
+            Status = false,
+            ErrorType = bmslib.Enmus.ErrorType.Exception,
+            Message = string.Join(", ", problemDetails.Errors.Select(t => string.Join(",", t.Value)))
+        };
+
+        return new BadRequestObjectResult(_errorObj);
+    };
+});
+
+# endregion
 
 bmsservice.Common.DependencyConfig.Configure(builder.Services, appConfig);
 
