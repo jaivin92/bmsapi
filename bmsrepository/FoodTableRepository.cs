@@ -88,10 +88,7 @@ namespace bmsrepository
                     sql.Append(" AND IsActive=@IsActive");
                 }
 
-                if (!string.IsNullOrEmpty(model.TableStatus))
-                {
-                    sql.Append(" and TableStatus like CONCAT('%', @TableStatus, '%')");
-                }
+                sql.Append(" and TableStatus = @TableStatus");
 
                 if (model.BookTime != default)
                 {

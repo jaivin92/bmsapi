@@ -93,15 +93,8 @@ namespace bmsrepository
                     sql.Append(" AND UserId=@UserId");
                 }
 
-                if (!string.IsNullOrEmpty(model.OrderStatus))
-                {
-                    sql.Append(" and OrderStatus like CONCAT('%', @OrderStatus, '%')");
-                }
-
-                if (!string.IsNullOrEmpty(model.OrderType))
-                {
-                    sql.Append(" and OrderType like CONCAT('%', @OrderType, '%')");
-                }
+                sql.Append(" and OrderStatus = @OrderStatus");
+                sql.Append(" and OrderType = @OrderType");
 
                 if (model.OrderDate != default)
                 {

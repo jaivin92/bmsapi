@@ -1,12 +1,14 @@
-﻿namespace bmsmodel.Common
+﻿using bmslib.Enmus;
+
+namespace bmsmodel.Common
 {
     public class OrderModel : BaseModel
     {
         public long UserId { get; set; }
 
-        public string OrderStatus { get; set; } = string.Empty;
+        public OrderStatus OrderStatus { get; set; } = OrderStatus.Pending;
 
-        public string OrderType { get; set; } = string.Empty;
+        public OrderType OrderType { get; set; } = OrderType.DineIn;
 
         public DateTime OrderDate { get; set; }
 
