@@ -10,6 +10,8 @@ namespace bmsrepository.Common
         public static void Configure(IServiceCollection config, AppConfig appConfig)
         {
             config.AddTransient<IUserRepository, UserRepository>();
+            config.AddTransient<IFoodCategoryRepository, FoodCategoryRepository>();
+            config.AddTransient<IFoodRepository, FoodRepository>();
 
         }
     }

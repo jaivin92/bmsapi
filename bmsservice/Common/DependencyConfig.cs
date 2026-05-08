@@ -10,6 +10,8 @@ namespace bmsservice.Common
         public static void Configure(IServiceCollection config, AppConfig appConfig)
         {
             config.AddTransient<IUserService, UserService>();
+            config.AddTransient<IFoodCategoryService, FoodCategoryService>();
+            config.AddTransient<IFoodService, FoodService>();
 
             bmsrepository.Common.DependencyConfig.Configure(config, appConfig);
         }
