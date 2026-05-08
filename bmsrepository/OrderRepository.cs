@@ -6,18 +6,18 @@ using bmsrepository.Interface;
 
 namespace bmsrepository
 {
-    internal class FoodRepository(AppConfig appConfig) : BaseRepository(appConfig), IFoodRepository
+    internal class OrderRepository(AppConfig appConfig) : BaseRepository(appConfig), IOrderRepository
     {
-        public async Task<bool> IsExists(FoodModel model)
+        public async Task<bool> IsExists(OrderModel model)
         {
             using var conn = _connection;
-            const string sql = @"SELECT COUNT(1) FROM Foods WHERE Id!=@Id AND Name = @Name AND FoodCategoryId = @FoodCategoryId AND IsActive=1;";
+            const string sql = @"SELECT COUNT(1) FROM Orders WHERE Id!=@Id AND UserId = @UserId AND OrderDate = @OrderDate AND IsActive=1;";
             return await conn.ExecuteScalarAsync<int>(
                 sql,
                 model) > 0;
         }
 
-        public async Task Insert(FoodModel model)
+        public async Task Insert(OrderModel model)
         {
             using (var conn = _connection)
             {
@@ -25,7 +25,7 @@ namespace bmsrepository
                 {
                     await conn.BeginTransactionAsync();
                     model.IsActive = true;
-                    model.Id = await conn.InsertAsync("Foods", model);
+                    model.Id = await conn.InsertAsync("Orders", model);
                     await conn.CommitAsync();
                 }
                 catch (Exception ex)
@@ -39,7 +39,7 @@ namespace bmsrepository
             }
         }
 
-        public async Task Update(FoodModel model)
+        public async Task Update(OrderModel model)
         {
             using (var conn = _connection)
             {
@@ -47,7 +47,7 @@ namespace bmsrepository
                 {
                     await conn.BeginTransactionAsync();
                     model.AddIgnore(nameof(model.IsActive));
-                    await conn.UpdateAsync("Foods", model);
+                    await conn.UpdateAsync("Orders", model);
                     await conn.CommitAsync();
                 }
                 catch (Exception ex)
@@ -61,20 +61,20 @@ namespace bmsrepository
             }
         }
 
-        public async Task<FoodModel> GetById(long Id)
+        public async Task<OrderModel> GetById(long Id)
         {
             using var conn = _connection;
-            string sql = @"select * from Foods where Id=@Id";
-            return await conn.ExecuteScalarAsync<FoodModel>(sql, new
+            string sql = @"select * from Orders where Id=@Id";
+            return await conn.ExecuteScalarAsync<OrderModel>(sql, new
             {
                 Id,
             });
         }
 
-        public async Task<List<FoodModel>> GetAll(FoodModel model)
+        public async Task<List<OrderModel>> GetAll(OrderModel model)
         {
             using var conn = _connection;
-            StringBuilder sql = new StringBuilder("select *, COUNT(1) OVER () AS TotalRecord from Foods where 1=1");
+            StringBuilder sql = new StringBuilder("select *, COUNT(1) OVER () AS TotalRecord from Orders where 1=1");
 
             if (model != null)
             {
@@ -88,35 +88,41 @@ namespace bmsrepository
                     sql.Append(" AND IsActive=@IsActive");
                 }
 
-                if (!string.IsNullOrEmpty(model.Name))
+                if (model.UserId > 0)
                 {
-                    sql.Append(" and Name like CONCAT('%', @Name, '%')");
+                    sql.Append(" AND UserId=@UserId");
                 }
 
-                if (!string.IsNullOrEmpty(model.Description))
+                if (!string.IsNullOrEmpty(model.OrderStatus))
                 {
-                    sql.Append(" and Description like CONCAT('%', @Description, '%')");
+                    sql.Append(" and OrderStatus like CONCAT('%', @OrderStatus, '%')");
                 }
 
-                if (model.Price > 0)
+                if (!string.IsNullOrEmpty(model.OrderType))
                 {
-                    sql.Append(" AND Price=@Price");
+                    sql.Append(" and OrderType like CONCAT('%', @OrderType, '%')");
                 }
 
-                if (model.FoodCategoryId > 0)
+                if (model.OrderDate != default)
                 {
-                    sql.Append(" AND FoodCategoryId=@FoodCategoryId");
+                    sql.Append(" AND OrderDate=@OrderDate");
+                }
+
+                if (!string.IsNullOrEmpty(model.Notes))
+                {
+                    sql.Append(" and Notes like CONCAT('%', @Notes, '%')");
                 }
             }
             sql.Append(model.DataTableRequestModel.GetPagination("Id desc"));
-            return await conn.QueryAsync<FoodModel>(sql.ToString(), new
+            return await conn.QueryAsync<OrderModel>(sql.ToString(), new
             {
                 model.Id,
                 model.IsActive,
-                model.Name,
-                model.Description,
-                model.Price,
-                model.FoodCategoryId
+                model.UserId,
+                model.OrderStatus,
+                model.OrderType,
+                model.OrderDate,
+                model.Notes
             });
         }
     }
