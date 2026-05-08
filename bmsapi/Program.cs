@@ -1,13 +1,24 @@
-﻿using bmsapi.Helpers;
+using bmsapi.Helpers;
+using bmsmodel.FiltersAndAttributes;
 using bmslib.Config;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "BMS API",
+        Version = "v1"
+    });
+
+    options.SchemaFilter<SwaggerExcludePropertySchemaFilter>();
+});
 
 var appConfig = builder.Configuration.Get<AppConfig>();
 
