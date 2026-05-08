@@ -37,12 +37,17 @@ namespace bmsapi.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromBody] DataTableRequestModel dataTableRequestModel)
         {
-            var users = await _userService.GetAll();
+            var users = await _userService.GetAll(dataTableRequestModel);
             return await Success(users);
         }
 
+        [HttpPost("GetSingle")]
+        public async Task<IActionResult> GetSingle([FromBody] DataTableRequestModel dataTableRequestModel)
+        {
+            return await Success(await _userService.GetSingle(dataTableRequestModel));
+        }
 
     }
 }

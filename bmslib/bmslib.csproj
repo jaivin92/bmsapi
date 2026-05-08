@@ -1,10 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="CustomLibDll\NewFolder\**" />
+    <EmbeddedResource Remove="CustomLibDll\NewFolder\**" />
+    <None Remove="CustomLibDll\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="CIDbConnection.Core">
+      <HintPath>CustomLibDll\CIDbConnection.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Update="Resource\SystemMessages.Designer.cs">
@@ -19,10 +31,6 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>SystemMessages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="CustomLibDll\" />
   </ItemGroup>
 
 </Project>

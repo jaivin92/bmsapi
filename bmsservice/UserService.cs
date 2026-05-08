@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using bmslib;
 using bmslib.Resource;
 using bmsmodel.Common;
 using bmsrepository.Interface;
@@ -34,14 +35,32 @@ namespace bmsservice
             }
         }
 
-        public Task<UserModel> GetById(long id)
+        public async Task<UserModel> GetById(long id)
         {
-            return _userRepository.GetById(id);
+            return await _userRepository.GetById(id);
         }
 
-        public Task<List<UserModel>> GetAll()
+        public async Task<List<UserModel>> GetAll(DataTableRequestModel dataTableRequestModel)
         {
-            return _userRepository.GetAll();
+            UserModel _userModel = new();
+            if(dataTableRequestModel != null)
+            {
+                _userModel = dataTableRequestModel.FilterObj.GetModel<UserModel>();
+                _userModel.DataTableRequestModel = dataTableRequestModel;
+            }
+            return await _userRepository.GetAll(_userModel);
+        }
+
+        public async Task<UserModel> GetSingle(DataTableRequestModel dataTableRequestModel)
+        {
+            UserModel _userModel = new();
+            if (dataTableRequestModel != null)
+            {
+                _userModel = dataTableRequestModel.FilterObj.GetModel<UserModel>();
+                _userModel.DataTableRequestModel = dataTableRequestModel;
+            }
+            var result = await _userRepository.GetAll(_userModel);
+            return result.FirstOrDefault();
         }
     }
 }

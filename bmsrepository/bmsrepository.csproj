@@ -1,20 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.1.72" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.6" />
-    <PackageReference Include="MySqlConnector" Version="2.5.0" />
+    <ProjectReference Include="..\bmslib\bmslib.csproj" />
+    <ProjectReference Include="..\bmsmodel\bmsmodel.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\bmslib\bmslib.csproj" />
-    <ProjectReference Include="..\bmsmodel\bmsmodel.csproj" />
+    <Reference Include="CIDbConnection.Core">
+      <HintPath>..\bmslib\CustomLibDll\CIDbConnection.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@
 
 namespace bmsrepository.Common
 {
-    public class DbConnection(AppConfig appConfig)
+    public class IDbConnection(AppConfig appConfig) : CIDbConnection.Core.IDbConnection(appConfig.ConnectionStrings.CMSDBConnection)
     {
 
 
