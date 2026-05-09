@@ -49,5 +49,11 @@ namespace bmsapi.Controllers
             return await Success(await _userService.GetSingle(dataTableRequestModel));
         }
 
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] UserModel model)
+        {
+            var user = await _userService.Login(model);
+            return await Success(user);
+        }
     }
 }

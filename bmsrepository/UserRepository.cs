@@ -74,6 +74,21 @@ namespace bmsrepository
             });
         }
 
+        public async Task<UserModel?> Login(UserModel model)
+        {
+            using var conn = _connection;
+            const string sql = @"select * from Users
+                                 where IsActive=1
+                                 and Password=@Password
+                                 and (Mobile=@Mobile or (@Email is not null and @Email <> '' and Email=@Email))";
+            return await conn.ExecuteScalarAsync<UserModel>(sql, new
+            {
+                model.Mobile,
+                model.Email,
+                model.Password
+            });
+        }
+
         public async Task<List<UserModel>> GetAll(UserModel model)
         {
             using var conn = _connection;

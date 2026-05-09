@@ -10,5 +10,6 @@ namespace bmsservice.Interface
         Task<UserModel> GetById(long id);
         Task<List<UserModel>> GetAll(DataTableRequestModel dataTableRequestModel);
         Task<UserModel> GetSingle(DataTableRequestModel dataTableRequestModel);
+        Task<UserModel?> Login(UserModel userModel);
     }
 }

@@ -9,5 +9,6 @@ namespace bmsrepository.Interface
         Task Update(UserModel userModel);
         Task<UserModel?> GetById(long id);
         Task<List<UserModel>> GetAll(UserModel model);
+        Task<UserModel?> Login(UserModel userModel);
     }
 }

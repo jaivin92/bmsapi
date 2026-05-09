@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using bmslib;
+﻿using bmslib;
+using bmslib.Exceptions;
 using bmslib.Resource;
 using bmsmodel.Common;
 using bmsrepository.Interface;
@@ -61,6 +61,17 @@ namespace bmsservice
             }
             var result = await _userRepository.GetAll(_userModel);
             return result.FirstOrDefault();
+        }
+
+        public async Task<UserModel?> Login(UserModel userModel)
+        {
+            var user = await _userRepository.Login(userModel);
+            if (user == null)
+            {
+                throw new ValidationException(SystemMessages.User.Invalid());
+            }
+
+            return user;
         }
     }
 }
