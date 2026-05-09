@@ -1,9 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using bmslib.Enmus;
+using System.ComponentModel.DataAnnotations;
 
 namespace bmsmodel.Common
 {
     public class UserModel : BaseModel
     {
+        public UserTypes UserType { get; set; } = UserTypes.CUSTOMER;
+
         public string Name { get; set; } = string.Empty;
         public string? Email { get; set; }
 

@@ -67,6 +67,22 @@ bmsservice.Common.DependencyConfig.Configure(builder.Services, appConfig);
 
 var app = builder.Build();
 
+if (appConfig.CorsPolicy?.Count() > 0)
+{
+    app.UseCors((policy) =>
+    {
+        foreach (var item in appConfig.CorsPolicy)
+        {
+            policy.WithOrigins(item.Origins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .SetIsOriginAllowed(origin => true)
+            .AllowCredentials()
+            .WithExposedHeaders("Token");
+        }
+    });
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
