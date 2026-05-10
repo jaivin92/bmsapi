@@ -88,8 +88,7 @@ namespace bmsrepository
                     sql.Append(" AND IsActive=@IsActive");
                 }
 
-                sql.Append(" and TableStatus = @TableStatus");
-
+                
                 if (model.BookTime != default)
                 {
                     sql.Append(" AND BookTime=@BookTime");

@@ -1,4 +1,5 @@
-﻿using bmslib.Resource;
+﻿using bmsapi.Helpers;
+using bmslib.Resource;
 using bmsmodel.Common;
 using bmsservice.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -36,11 +37,11 @@ namespace bmsapi.Controllers
             return await Success(foodTable);
         }
 
-        [HttpGet("GetAll")]
+        [HttpPost("GetAll")]
         public async Task<IActionResult> GetAll([FromBody] DataTableRequestModel dataTableRequestModel)
         {
             var foodTables = await _foodTableService.GetAll(dataTableRequestModel);
-            return await Success(foodTables);
+            return await Success(foodTables.Datatable());
         }
 
         [HttpPost("GetSingle")]
