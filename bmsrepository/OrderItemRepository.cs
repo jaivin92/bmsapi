@@ -14,7 +14,14 @@ namespace bmsrepository
             const string sql = @"SELECT COUNT(1) FROM OrderItems WHERE Id!=@Id AND OrderId = @OrderId AND FoodId = @FoodId AND FoodTableId = @FoodTableId AND IsActive=1;";
             return await conn.ExecuteScalarAsync<int>(
                 sql,
-                model) > 0;
+                new
+                {
+                    Id = model.Id,
+                    OrderId = model.OrderId,
+                    FoodId = model.FoodId,
+                    FoodTableId = model.FoodTableId,
+
+                }) > 0;
         }
 
         public async Task Insert(OrderItemModel model)
@@ -108,10 +115,10 @@ namespace bmsrepository
                     sql.Append(" AND OrderId=@OrderId");
                 }
 
-                if (!string.IsNullOrEmpty(model.OrderStatus))
-                {
-                    sql.Append(" and OrderStatus like CONCAT('%', @OrderStatus, '%')");
-                }
+                //if (!string.IsNullOrEmpty(model.OrderStatus))
+                //{
+                //    sql.Append(" and OrderStatus like CONCAT('%', @OrderStatus, '%')");
+                //}
 
                 if (model.FoodTableId > 0)
                 {

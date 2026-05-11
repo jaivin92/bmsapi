@@ -6,12 +6,13 @@ namespace bmsmodel.Common
     {
         public long UserId { get; set; }
 
-        public OrderStatus OrderStatus { get; set; } = OrderStatus.Pending;
+        public OrderStatus OrderStatus { get; set; }
 
-        public OrderType OrderType { get; set; } = OrderType.DineIn;
+        public OrderType OrderType { get; set; }
 
         public DateTime OrderDate { get; set; }
 
         public string? Notes { get; set; }
+        //{"Id":0,"IsActive":true,"OrderId":1,"FoodId":1,"Quantity":1,"FoodTableId":1,"OrderStatus":1,"Notes":null}
     }
 }
