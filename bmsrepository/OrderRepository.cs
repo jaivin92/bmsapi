@@ -96,15 +96,15 @@ namespace bmsrepository
                 sql.Append(" and OrderStatus = @OrderStatus");
                 sql.Append(" and OrderType = @OrderType");
 
-                if (model.OrderDate != default)
-                {
-                    sql.Append(" AND OrderDate=@OrderDate");
-                }
+                //if (model.OrderDate != default)
+                //{
+                //    sql.Append(" AND OrderDate=@OrderDate");
+                //}
 
-                if (!string.IsNullOrEmpty(model.Notes))
-                {
-                    sql.Append(" and Notes like CONCAT('%', @Notes, '%')");
-                }
+                //if (!string.IsNullOrEmpty(model.Notes))
+                //{
+                //    sql.Append(" and Notes like CONCAT('%', @Notes, '%')");
+                //}
             }
             sql.Append(model.DataTableRequestModel.GetPagination("Id desc"));
             return await conn.QueryAsync<OrderModel>(sql.ToString(), new
