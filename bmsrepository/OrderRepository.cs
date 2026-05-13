@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Linq;
 using bmslib.Config;
 using bmsmodel.Common;
 using bmsrepository.Common;
@@ -26,6 +27,17 @@ namespace bmsrepository
                     await conn.BeginTransactionAsync();
                     model.IsActive = true;
                     model.Id = await conn.InsertAsync("Orders", model);
+
+                    if (model.OrderItemModels != null && model.OrderItemModels.Count > 0)
+                    {
+                        foreach (var orderItem in model.OrderItemModels)
+                        {
+                            orderItem.OrderId = model.Id;
+                            orderItem.IsActive = true;
+                            await conn.InsertAsync("OrderItems", orderItem);
+                        }
+                    }
+
                     await conn.CommitAsync();
                 }
                 catch (Exception ex)
@@ -48,6 +60,39 @@ namespace bmsrepository
                     await conn.BeginTransactionAsync();
                     model.AddIgnore(nameof(model.IsActive));
                     await conn.UpdateAsync("Orders", model);
+
+                    if (model.OrderItemModels != null)
+                    {
+                        var existingItems = await conn.QueryAsync<OrderItemModel>(
+                            "SELECT * FROM OrderItems WHERE OrderId=@OrderId AND IsActive=1",
+                            new { OrderId = model.Id });
+
+                        var existingItemMap = existingItems.ToDictionary(x => x.Id, x => x);
+
+                        foreach (var orderItem in model.OrderItemModels)
+                        {
+                            orderItem.OrderId = model.Id;
+                            orderItem.IsActive = true;
+
+                            if (orderItem.Id > 0 && existingItemMap.ContainsKey(orderItem.Id))
+                            {
+                                await conn.UpdateAsync("OrderItems", orderItem);
+                                existingItemMap.Remove(orderItem.Id);
+                            }
+                            else
+                            {
+                                orderItem.Id = 0;
+                                await conn.InsertAsync("OrderItems", orderItem);
+                            }
+                        }
+
+                        foreach (var deletedItem in existingItemMap.Values)
+                        {
+                            deletedItem.IsActive = false;
+                            await conn.UpdateAsync("OrderItems", deletedItem);
+                        }
+                    }
+
                     await conn.CommitAsync();
                 }
                 catch (Exception ex)
