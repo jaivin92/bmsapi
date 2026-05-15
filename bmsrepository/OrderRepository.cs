@@ -157,7 +157,8 @@ namespace bmsrepository
                 //}
             }
             sql.Append(model.DataTableRequestModel.GetPagination("Id desc"));
-            return await conn.QueryAsync<OrderModel>(sql.ToString(), new
+
+            var orders = await conn.QueryAsync<OrderModel>(sql.ToString(), new
             {
                 model.Id,
                 model.IsActive,
@@ -167,6 +168,27 @@ namespace bmsrepository
                 model.OrderDate,
                 model.Notes
             });
+
+            if (orders != null && orders.Count > 0)
+            {
+                var orderIds = orders.Select(x => x.Id).ToList();
+                var orderItems = await conn.QueryAsync<OrderItemModel>(
+                    "SELECT * FROM OrderItems WHERE IsActive=1 AND OrderId IN @OrderIds",
+                    new { OrderIds = orderIds });
+
+                var orderItemLookup = orderItems
+                    .GroupBy(x => x.OrderId)
+                    .ToDictionary(x => x.Key, x => x.ToList());
+
+                foreach (var order in orders)
+                {
+                    order.OrderItemModels = orderItemLookup.TryGetValue(order.Id, out var items)
+                        ? items
+                        : [];
+                }
+            }
+
+            return orders;
         }
     }
 }
