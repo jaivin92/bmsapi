@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Linq;
 using bmslib.Config;
 using bmsmodel.Common;
 using bmsrepository.Common;
@@ -25,7 +26,23 @@ namespace bmsrepository
                 {
                     await conn.BeginTransactionAsync();
                     model.IsActive = true;
+                    model.AddIgnore(nameof(model.OrderItemModels));
+                    if(model.CustomerId == 0)
+                    {
+                        model.AddIgnore(nameof(model.CustomerId));
+                    }
                     model.Id = await conn.InsertAsync("Orders", model);
+
+                    if (model.OrderItemModels != null && model.OrderItemModels.Count > 0)
+                    {
+                        foreach (var orderItem in model.OrderItemModels)
+                        {
+                            orderItem.OrderId = model.Id;
+                            orderItem.IsActive = true;
+                            await conn.InsertAsync("OrderItems", orderItem);
+                        }
+                    }
+
                     await conn.CommitAsync();
                 }
                 catch (Exception ex)
@@ -45,9 +62,46 @@ namespace bmsrepository
             {
                 try
                 {
+                    var existingItems = await conn.QueryAsync<OrderItemModel>(
+                            "SELECT * FROM OrderItems WHERE OrderId=@OrderId AND IsActive=1",
+                            new { OrderId = model.Id });
+
                     await conn.BeginTransactionAsync();
                     model.AddIgnore(nameof(model.IsActive));
+                    model.AddIgnore(nameof(model.OrderItemModels));
+                    if (model.CustomerId == 0)
+                    {
+                        model.AddIgnore(nameof(model.CustomerId));
+                    }
                     await conn.UpdateAsync("Orders", model);
+
+                    if (model.OrderItemModels != null)
+                    {
+                        var existingItemMap = existingItems.ToDictionary(x => x.Id, x => x);
+
+                        foreach (var orderItem in model.OrderItemModels)
+                        {
+                            orderItem.OrderId = model.Id;
+                            orderItem.IsActive = true;
+
+                            if (orderItem.Id > 0 && existingItemMap.ContainsKey(orderItem.Id))
+                            {
+                                //await conn.UpdateAsync("OrderItems", orderItem);
+                                //existingItemMap.Remove(orderItem.Id);
+                            }
+                            else
+                            {
+                                orderItem.Id = 0;
+                                await conn.InsertAsync("OrderItems", orderItem);
+                            }
+                        }
+                        //foreach (var deletedItem in existingItemMap.Values)
+                        //{
+                        //    deletedItem.IsActive = false;
+                        //    await conn.UpdateAsync("OrderItems", deletedItem);
+                        //}
+                    }
+
                     await conn.CommitAsync();
                 }
                 catch (Exception ex)
@@ -107,7 +161,8 @@ namespace bmsrepository
                 //}
             }
             sql.Append(model.DataTableRequestModel.GetPagination("Id desc"));
-            return await conn.QueryAsync<OrderModel>(sql.ToString(), new
+
+            var orders = await conn.QueryAsync<OrderModel>(sql.ToString(), new
             {
                 model.Id,
                 model.IsActive,
@@ -117,6 +172,40 @@ namespace bmsrepository
                 model.OrderDate,
                 model.Notes
             });
+
+            if (orders != null && orders.Count > 0)
+            {
+                var orderIds = orders.Select(x => x.Id).ToList();
+                var orderItems = await conn.QueryAsync<OrderItemModel>(
+                    //"SELECT * FROM OrderItems WHERE IsActive=1 AND OrderId IN @OrderIds",
+                    @"SELECT 
+    MIN(Id) AS Id,
+    MAX(IsActive) AS IsActive,
+    SUM(Quantity) AS Quantity,
+    FoodId,
+    MAX(Notes) AS Notes,
+    OrderId,
+    MAX(OrderItemStatus) AS OrderItemStatus,
+    MAX(FoodTableId) AS FoodTableId
+FROM OrderItems
+WHERE OrderId IN @OrderIds
+AND IsActive = 1
+GROUP BY FoodId, OrderId;",
+                    new { OrderIds = orderIds });
+
+                var orderItemLookup = orderItems
+                    .GroupBy(x => x.OrderId)
+                    .ToDictionary(x => x.Key, x => x.ToList());
+
+                foreach (var order in orders)
+                {
+                    order.OrderItemModels = orderItemLookup.TryGetValue(order.Id, out var items)
+                        ? items
+                        : [];
+                }
+            }
+
+            return orders;
         }
     }
 }
