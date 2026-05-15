@@ -12,9 +12,9 @@ namespace bmsmodel.Common
 
         public long OrderId { get; set; }
 
-        public OrderStatus OrderStatus { get; set; } = OrderStatus.Accepted;
+        public OrderItemStatus OrderItemStatus { get; set; } = OrderItemStatus.Preparing;
 
-        public long FoodTableId { get; set; }
+        public long? FoodTableId { get; set; }
 
         //{ IsActive: true, OrderId: 8, FoodId: 28, Quantity: 1, FoodTableId: 1, OrderStatus: 1, Notes: "teststes" }
     }

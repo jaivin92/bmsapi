@@ -11,6 +11,12 @@
         Cancelled = 7
     }
 
+    public enum OrderItemStatus
+    {
+        Preparing = 1,
+        Served = 2,
+        Parcel = 3,
+    }
 
     public enum OrderType
     {

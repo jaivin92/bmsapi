@@ -134,7 +134,7 @@ namespace bmsrepository
                 model.FoodId,
                 model.Notes,
                 model.OrderId,
-                model.OrderStatus,
+                model.OrderItemStatus,
                 model.FoodTableId
             });
         }
