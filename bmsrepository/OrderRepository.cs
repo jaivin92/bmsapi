@@ -26,6 +26,11 @@ namespace bmsrepository
                 {
                     await conn.BeginTransactionAsync();
                     model.IsActive = true;
+                    model.AddIgnore(nameof(model.OrderItemModels));
+                    if(model.CustomerId == 0)
+                    {
+                        model.AddIgnore(nameof(model.CustomerId));
+                    }
                     model.Id = await conn.InsertAsync("Orders", model);
 
                     if (model.OrderItemModels != null && model.OrderItemModels.Count > 0)
