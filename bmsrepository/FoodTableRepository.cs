@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using bmslib.Config;
+using bmslib.Enmus;
 using bmsmodel.Common;
 using bmsrepository.Common;
 using bmsrepository.Interface;
@@ -59,6 +60,42 @@ namespace bmsrepository
                     await conn.RollbackAsync();
                 }
             }
+        }
+
+
+        public async Task UpdateTableStatus(long tableId, FoodTableType tableStatus)
+        {
+            using var conn = _connection;
+            const string sql = @"UPDATE FoodTables
+                                 SET TableStatus = @TableStatus,
+                                     BookTime = @BookTime
+                                 WHERE Id = @TableId AND IsActive = 1";
+
+            await conn.ExecuteAsync(sql, new
+            {
+                TableId = tableId,
+                TableStatus = tableStatus,
+                BookTime = DateTime.UtcNow
+            });
+        }
+
+        public async Task ReleaseCleaningTablesOlderThan(int minutes)
+        {
+            using var conn = _connection;
+            const string sql = @"UPDATE FoodTables
+                                 SET TableStatus = @AvailableStatus,
+                                     BookTime = @BookTime
+                                 WHERE IsActive = 1
+                                   AND TableStatus = @CleaningStatus
+                                   AND BookTime <= @CutoffTime";
+
+            await conn.ExecuteAsync(sql, new
+            {
+                AvailableStatus = FoodTableType.Available,
+                CleaningStatus = FoodTableType.Cleaning,
+                CutoffTime = DateTime.UtcNow.AddMinutes(-minutes),
+                BookTime = DateTime.UtcNow
+            });
         }
 
         public async Task<FoodTableModel> GetById(long Id)
