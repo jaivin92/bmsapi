@@ -6,6 +6,12 @@ namespace bmsmodel.Common
     {
         public long UserId { get; set; }
 
+        public long? FoodTableId { get; set; }
+
+        public long? CustomerId { get; set; }
+
+        public string? CustomerName { get; set; }
+
         public OrderStatus OrderStatus { get; set; }
 
         public OrderType OrderType { get; set; }
